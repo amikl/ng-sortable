@@ -1,4 +1,11 @@
-
+****************************************************************************************************
+NOTE: This repository impelemnt some patches for specific cases (walkaround for isDisabled in cases 
+      directive is used in Table>TR). 
+      This may effect other cases and bahaviors!
+      Known issue: isDisabled effects all directives in the tree.
+      IT IS RECOMMENDED TO USE THE ORIGINAL REPOSITORY IF YOU DO NOT NEED THS SPECIFIC FIX
+*****************************************************************************************************
+      
 ng-sortable
 ==============
 
