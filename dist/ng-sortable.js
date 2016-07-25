@@ -545,6 +545,7 @@
             scope.$watch(attrs.isDisabled, function (newVal, oldVal) {
               if (!angular.isUndefined(newVal)) {
                 scope.isDisabled = newVal;
+                scope.$broadcast('sortableScope.isDisabled',newVal);//PATCH!
               }
             }, true);
           }
@@ -641,22 +642,44 @@
           scope.itemScope = itemController.scope;
           element.data('_scope', scope); // #144, work with angular debugInfoEnabled(false)
 
+          //PATCH
+          isDisabled = angular.isDefined(scope.itemScope.$parent.isDisabled) ? scope.itemScope.$parent.isDisabled:false;
+
+          //scope.$watchGroup(['sortableScope.isDisabled', 'sortableScope.options.longTouch'],
+          //    function (newValues) {
+          //  if (isDisabled !== newValues[0]) {
+          //    isDisabled = newValues[0];
+          //    if (isDisabled) {
+          //      unbindDrag();
+          //    } else {
+          //      bindDrag();
+          //    }
+          //  } else if (isLongTouch !== newValues[1]) {
+          //    isLongTouch = newValues[1];
+          //    unbindDrag();
+          //    bindDrag();
+          //  } else {
+          //    bindDrag();
+          //  }
+          //});
+
           scope.$watchGroup(['sortableScope.isDisabled', 'sortableScope.options.longTouch'],
               function (newValues) {
-            if (isDisabled !== newValues[0]) {
-              isDisabled = newValues[0];
-              if (isDisabled) {
-                unbindDrag();
-              } else {
-                bindDrag();
-              }
-            } else if (isLongTouch !== newValues[1]) {
-              isLongTouch = newValues[1];
-              unbindDrag();
-              bindDrag();
-            } else {
-              bindDrag();
-            }
+                isDisabled = angular.isDefined(newValues[0]) ? newValues[0]:isDisabled;
+                  if (isDisabled) {
+                    unbindDrag();
+                  } else {
+                    bindDrag();
+                  }
+              });
+
+          scope.$on('sortableScope.isDisabled',function (event, newValues) {
+                isDisabled = angular.isDefined(newValues) ? newValues:isDisabled;
+                if (isDisabled) {
+                  unbindDrag();
+                } else {
+                  bindDrag();
+                }
           });
 
           scope.$on('$destroy', function () {
@@ -735,7 +758,8 @@
             dragHandled = true;
             event.preventDefault();
             eventObj = $helper.eventObj(event);
-            scope.sortableScope = scope.sortableScope || scope.itemScope.sortableScope; //isolate directive scope issue.
+            //scope.sortableScope = scope.sortableScope || scope.itemScope.sortableScope; //isolate directive scope issue.
+            scope.sortableScope = scope.itemScope.sortableScope || scope.sortableScope; //isolate directive scope issue.
             scope.callbacks = scope.callbacks || scope.itemScope.callbacks; //isolate directive scope issue.
 
             if (scope.itemScope.sortableScope.options.clone || (scope.itemScope.sortableScope.options.ctrlClone && event.ctrlKey)) {
